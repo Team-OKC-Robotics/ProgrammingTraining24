@@ -12,17 +12,24 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
 
 public class NoteSensorSubsystem extends SubsystemBase {
+    // Motor variables
     private final CANSparkMax intake_motor = new CANSparkMax(Constants.kIntakeMotorPort, CANSparkMax.MotorType.kBrushless);
 
+    // Sensor variables
     private final DigitalInput photoelectricSwitch = new DigitalInput(Constants.kPhotoelectricSwitchPort);
 
+    // Controller variables
     private final XboxController driverController = new XboxController(0);
     private final JoystickButton driverLeftBumperButton = new JoystickButton(driverController, 5);
 
+    // Shuffleboard variables
     private final ShuffleboardTab tab = Shuffleboard.getTab("Driver");
     private final GenericEntry hasNoteEntry = tab.add("Has Note", "No Note!").getEntry();
     private final GenericEntry intakeMotorSpeedEntry = tab.add("Intake Motor Speed", 0.0).getEntry();
 
+    /*
+     * Constructor for the NoteSensorSubsystem. This is where we do one-time setup.
+     */
     public NoteSensorSubsystem() {
         // Setup intake motor
         intake_motor.restoreFactoryDefaults();
@@ -30,6 +37,9 @@ public class NoteSensorSubsystem extends SubsystemBase {
         intake_motor.setIdleMode(CANSparkMax.IdleMode.kCoast);
     }
 
+    /*
+     * This method is called periodically (about every 20ms)
+     */
     @Override
     public void periodic() {
         // TODO: Test if the robot has a note. If it does, set hasNoteEntry to "Has Note!"
@@ -42,10 +52,16 @@ public class NoteSensorSubsystem extends SubsystemBase {
         // TODO: Set intakeMotorSpeedEntry to the speed of the intake motor
     }
 
+    /*
+     * Returns true if the photoelectric switch is triggered, meaning there is a note in the robot
+     */
     public boolean hasNote() {
         return !photoelectricSwitch.get();
     }
 
+    /*
+     * Stops the intake motor (used to stop the motor on teleop init)
+     */
     public void stopMotor() {
         intake_motor.stopMotor();
     }
