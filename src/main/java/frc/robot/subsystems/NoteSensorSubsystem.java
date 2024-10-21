@@ -42,14 +42,25 @@ public class NoteSensorSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        // TODO: Test if the robot has a note. If it does, set hasNoteEntry to "Has Note!"
+        // Test if the robot has a note. If it does, set hasNoteEntry to "Has Note!"
         // Otherwise, set hasNoteEntry to "No Note!"
+        if (hasNote()) {
+            hasNoteEntry.setString("Has Note!");
+        } else {
+            hasNoteEntry.setString("No Note!");
+        }
 
-        // TODO: Test if the driver is holding the left bumper button. If they are,
+        // Test if the driver is holding the left bumper button. If they are,
         // and there is no note in the robot, start the intake motor. If there is a note,
         // stop the intake motor.
+        double desired_speed = 0.0;
+        if (driverLeftBumperButton.getAsBoolean() && !hasNote()) {
+            desired_speed = 0.5;
+        }
+        intake_motor.set(desired_speed);
 
-        // TODO: Set intakeMotorSpeedEntry to the speed of the intake motor
+        // Set intakeMotorSpeedEntry to the speed of the intake motor
+        intakeMotorSpeedEntry.setDouble(desired_speed);
     }
 
     /*
