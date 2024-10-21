@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -22,10 +23,14 @@ public class NoteSensorSubsystem extends SubsystemBase {
     private final XboxController driverController = new XboxController(0);
     private final JoystickButton driverLeftBumperButton = new JoystickButton(driverController, 5);
 
+    // Timer (for match timing)
+    private final Timer matchTimer = new Timer();
+
     // Shuffleboard variables
     private final ShuffleboardTab tab = Shuffleboard.getTab("Driver");
-    private final GenericEntry hasNoteEntry = tab.add("Has Note", "No Note!").getEntry();
-    private final GenericEntry intakeMotorSpeedEntry = tab.add("Intake Motor Speed", 0.0).getEntry();
+    private final GenericEntry hasNoteEntry = tab.add("Has Note", false).getEntry();
+    private final GenericEntry noteIntakeTimes = tab.add("Note Intake Times", new double[0]).getEntry();
+    private final GenericEntry averageTimeEntry = tab.add("Average Time Between Notes", 0.0).getEntry();
 
     /*
      * Constructor for the NoteSensorSubsystem. This is where we do one-time setup.
@@ -42,25 +47,28 @@ public class NoteSensorSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        // Test if the robot has a note. If it does, set hasNoteEntry to "Has Note!"
-        // Otherwise, set hasNoteEntry to "No Note!"
-        if (hasNote()) {
-            hasNoteEntry.setString("Has Note!");
-        } else {
-            hasNoteEntry.setString("No Note!");
-        }
+        // Display on Shuffleboard the note sensor status
+        hasNoteEntry.setBoolean(hasNote());
 
-        // Test if the driver is holding the left bumper button. If they are,
-        // and there is no note in the robot, start the intake motor. If there is a note,
-        // stop the intake motor.
-        double desired_speed = 0.0;
+        // If the left bumper is held and we don't have a note, turn on the intake.
+        // Otherwise, turn it off (either because the driver is no longer holding the
+        // button or because we already have a note).
         if (driverLeftBumperButton.getAsBoolean() && !hasNote()) {
-            desired_speed = 0.5;
+            intake_motor.set(0.5);
+        } else{
+            intake_motor.set(0.0);
         }
-        intake_motor.set(desired_speed);
 
-        // Set intakeMotorSpeedEntry to the speed of the intake motor
-        intakeMotorSpeedEntry.setDouble(desired_speed);
+        // TODO: Record the current match time into an array for each time we have collected a note this match.
+        //  - First, detect if we collected a note this iteration
+        //  - Next, if we did collect a note, record the current match time into an array or ArrayList
+        //     - The current match time is available using matchTimer.get()
+        //  - Finally, Store the list of match times into noteIntakeTimes.
+
+
+
+        // TODO: Using the note collection time history, compute the average time between intaking notes.
+        //   Store the resulting average in averageTimeEntry.
     }
 
     /*
@@ -75,5 +83,9 @@ public class NoteSensorSubsystem extends SubsystemBase {
      */
     public void stopMotor() {
         intake_motor.stopMotor();
+    }
+
+    public void startTimer() {
+        matchTimer.restart();
     }
 }

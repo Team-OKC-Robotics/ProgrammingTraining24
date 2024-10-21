@@ -14,5 +14,6 @@ public class RobotContainer {
 
   public void resetRobot() {
     noteSensorSubsystem.stopMotor();
+    noteSensorSubsystem.startTimer();
   }
 }
